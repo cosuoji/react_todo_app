@@ -57,6 +57,10 @@
   justify-content: space-around;
 }
 
+.footer-items * p{
+  cursor: pointer;
+}
+
 .active-sorter{
   display: flex;
   gap: 10px;

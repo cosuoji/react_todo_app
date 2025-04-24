@@ -9,20 +9,22 @@ import checked from "./assets/checked.png"
 function App() {
   
   const [text, setText] = useState("")
-  const [amountOfItems, setAmountOfItems] = useState(0)
   const [todos, addTodoItem] = useState([])
-  const [completed, setCompleted] = useState(0)
-  const [active, setActive] = useState(0)
+  const [activeTodos, setActiveTodos] = useState([])
+   const [completedTodos, setCompletedTodos] = useState([])
   const [, setToggle] = useState(false)
-
-
-const todosFromStorage = localStorage.getItem("todos")
-  
+  const [currentStatus, setCurrentStatus] = useState("all")
+  const [allToggle, setAllToggle] = useState(false)
+  const [actToggle, setActToggle] = useState(false)
+  const [completedToggle, setCompleted] = useState(false)
   
   function getTextInfo(value){
     setText(value)
     todos.length === 0 ? addTodoItem([{todo: value, status: "active"}]) : addTodoItem([...todos, {todo: value, status: "active"}])
   }
+
+
+
 
   function setStatus(todoIndex){
     todos.map((item, index) =>{
@@ -48,12 +50,29 @@ const completeCount = todos.reduce((count, item) => {
 }, 0);
 
 
-  let todoElements = todos.map((item, index) => {
+let allElements = todos.map((item, index) => {
     return <div key={index + 1} className='todoDiv todo-items'>
         <img src={item.status === "active" ? circle : checked} onClick={() => setStatus(index + 1)}></img>
         {item.status === "active" ? <h2>{item.todo}</h2> : <h2 style={{textDecoration:"line-through"}}>{item.todo}</h2>}
     </div>
   })
+
+let activeElements = activeTodos.map((item, index) => {
+    return <div key={index + 1} className='todoDiv todo-items'>
+        <img src={item.status === "active" ? circle : checked} onClick={() => setStatus(index + 1)}></img>
+        {item.status === "active" ? <h2>{item.todo}</h2> : <h2 style={{textDecoration:"line-through"}}>{item.todo}</h2>}
+    </div>
+  })
+
+let completedElements = completedTodos.map((item, index) => {
+    return <div key={index + 1} className='todoDiv todo-items'>
+        <img src={item.status === "active" ? circle : checked} onClick={() => setStatus(index + 1)}></img>
+        {item.status === "active" ? <h2>{item.todo}</h2> : <h2 style={{textDecoration:"line-through"}}>{item.todo}</h2>}
+    </div>
+  })
+
+
+
 
 
   function clearComplete(){
@@ -63,29 +82,50 @@ const completeCount = todos.reduce((count, item) => {
 
      addTodoItem(array)
   }
-  
-  localStorage.setItem("todos", JSON.stringify(todos))
  
+  function displayAll(value){
+      setActToggle(false)
+      setCompleted(false)
+      setAllToggle(!allToggle)
+      setTodos(todos)
+  }
+
+  function displayAct(value){
+    setCompleted(false)
+    setAllToggle(false)
+    setActToggle(!actToggle)
+    setCurrentStatus(value)
+    let array = todos.filter(items => items.status === value)
+    setActiveTodos(array)
+  }
+
+  function displayCompleted(value){
+    setActToggle(false)
+    setAllToggle(false)
+    setCompleted(!completedToggle)
+    setCurrentStatus(value)
+    let array = todos.filter(items => items.status === value)
+    setCompletedTodos(array)
+  }
 
   return (
     <>
       <h1>todos</h1>
       <SearchBar onEnterDown={getTextInfo}/>
-      {todoElements}
-      <div className='footer-items'>
+      {completedToggle ? completedElements : actToggle ? activeElements : allElements}
+      {todos.length > 0 &&  <div className='footer-items'>
         <div>
-          <p>{activeCount} items left</p>
+          <p>{activeCount} item(s) left</p>
         </div>
           <div className='active-sorter'>
-            <p className='active items'>All</p>
-            <p className='items'>Active</p>
-            <p className='items'>Completed</p>
+            <p className={`items ${allToggle ? `active` : null}`} onClick={() => displayAll("all")}>All</p>
+            <p className={`items ${actToggle? `active` : null}`} onClick={() => displayAct("active")}>Active</p>
+            <p className={`items ${completedToggle ? `active` : null}`} onClick={() => displayCompleted("completed")}>Completed</p>
           </div>
-
           <div>
            {completeCount > 0 && <p onClick={clearComplete}>Clear Completed [{completeCount}]</p>}
           </div>
-      </div>
+      </div>}
     </>
   )
 }
